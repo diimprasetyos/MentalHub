@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "menthouse_rn",
+    "slug": "menthouse_rn",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "menthouse_rn"
+}
