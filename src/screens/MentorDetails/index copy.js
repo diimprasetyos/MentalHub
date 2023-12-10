@@ -7,13 +7,13 @@ import mentorData from '../../data/mentor-data';
 export default function MentorDetails( {route, navigation}) {
 
   const renderMentorItem = ({ item }) => (
-    <TouchableOpacity style={styles.mentorContainer} onPress={() =>  navigation.navigate('MentorDetails', { mentorId: item.id }) }>
+    <View style={styles.mentorContainer}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.textContainer}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.category}>{item.category}</Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (

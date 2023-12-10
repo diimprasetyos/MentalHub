@@ -1,35 +1,38 @@
 import React from 'react';
-import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { colors, fontType } from '../../theme';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
 import mentorData from '../../data/mentor-data';
 
-export default function MentorDetails( {route, navigation}) {
+export default function MentorDetails({ route, navigation }) {
+  const { id } = route.params; // Ambil ID mentor dari params
+  const selectedMentor = mentorData.find(item => item.id === id); // Cari mentor berdasarkan ID
 
-  const renderMentorItem = ({ item }) => (
-    <TouchableOpacity style={styles.mentorContainer} onPress={() =>  navigation.navigate('MentorDetails', { mentorId: item.id }) }>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={styles.textContainer}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.category}>{item.category}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const handleConsultation = () => {
+    navigation.navigate('Konsultasi', { mentor: selectedMentor });
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.category}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft color={colors.black(0.8)} size={24} />
         </TouchableOpacity>
-        <Text style={styles.heading}>Mentor</Text>
+        <Text style={styles.heading}>Konsultasi</Text>
         <InfoCircle color={colors.black(0.8)} size={24} />
       </View>
-      <FlatList
-        data={mentorData}
-        renderItem={renderMentorItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      <View style={styles.mentorContainer}>
+        <Image source={{ uri: selectedMentor.image }} style={styles.image} />
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{selectedMentor.title}</Text>
+          <Text style={styles.category}>{selectedMentor.detail}</Text>
+          <Text style={styles.title}>Rp.{selectedMentor.price}</Text>
+          <Text style={styles.text}>{selectedMentor.description}</Text>
+          <TouchableOpacity style={styles.consultationButton} onPress={handleConsultation}>
+            <Text style={styles.buttonText}>Konsultasi Sekarang</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }

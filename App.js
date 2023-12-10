@@ -1,20 +1,10 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Home from './src/screens/Home/index'; 
-import MentorDetails from './src/screens/MentorDetails';
-import Konsultasi from './src/screens/Konsultasi';
-
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import Router from './src/navigation/Router';
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Konsultasi />
-    </View>
-
-  )
+    <NavigationContainer>
+     <Router/>
+    </NavigationContainer>
+  );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
