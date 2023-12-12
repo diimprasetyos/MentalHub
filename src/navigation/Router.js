@@ -5,8 +5,10 @@ import Home from '../screens/Home';
 import Konsultasi from '../screens/Konsultasi';
 import MentorDetails from '../screens/MentorDetails';
 import Profile from '../screens/Profile';
+import Search from '../screens/Search';
 import { Home2, ProfileCircle,Health } from 'iconsax-react-native';
 import { fontType, colors } from '../theme';
+import AddMentorForm from '../screens/AddMentorForm';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -110,7 +112,26 @@ const Router = () => {
           ...TransitionPresets.SlideFromRightIOS,
         }}
       />
-      
+      <Stack.Screen
+        name="SearchPage"
+        component={Search}
+        options={{
+          headerShown: false,
+          presentation: 'transparentModal',
+        }}
+      />
+<Stack.Screen
+        name="AddMentor"
+        component={AddMentorForm}
+        options={{
+          headerShown: false,
+          animationEnabled: true,
+          animationTypeForReplace: 'pop',
+          gestureEnabled: true,
+          gestureDirection : 'horizontal',
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
     </Stack.Navigator>
   );
 };

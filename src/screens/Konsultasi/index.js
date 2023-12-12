@@ -1,9 +1,9 @@
 import React,{useRef} from 'react';
-import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity,Animated } from 'react-native';
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity,Animated,TouchableWithoutFeedback } from 'react-native';
 import { colors, fontType } from '../../theme';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
 import mentorData from '../../data/mentor-data';
-import { SearchNormal1 } from 'iconsax-react-native';
+import { Edit } from 'iconsax-react-native';
 
 export default function MentorDetails( {route, navigation}) {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -14,7 +14,7 @@ export default function MentorDetails( {route, navigation}) {
       extrapolate: 'clamp',
     });
   const renderMentorItem = ({ item }) => (
-    <TouchableOpacity style={styles.mentorContainer} onPress={() =>  navigation.navigate('MentorDetails', { mentorId: item.id }) }>
+    <TouchableOpacity  style={styles.mentorContainer} onPress={() =>  navigation.navigate('MentorDetails', { mentorId: item.id }) }>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.textContainer}>
       <Text style={styles.title}>{item.title}</Text>
@@ -24,6 +24,7 @@ export default function MentorDetails( {route, navigation}) {
   );
 
   return (
+    <TouchableWithoutFeedback onPress={() => navigation.navigate("SearchPage")}>
     <Animated.View style={[styles.container, {transform:[{translateY:recentY}]}]}>
       <Animated.ScrollView 
       showsVerticalScrollIndicator={false}
@@ -36,20 +37,22 @@ export default function MentorDetails( {route, navigation}) {
         <Text style={styles.heading}>Mentor</Text>
         <InfoCircle color={colors.black(0.8)} size={24} />
       </View>
-      <View style={styles.searchBar}>
-      <View style={styles.bar}>
-          <SearchNormal1 size={18} color={colors.grey(0.5)} variant="Linear" />
-          <Text style={styles.placeholder}>Search</Text>
-        </View>
+      <View>
       </View>
-      <FlatList
+            <FlatList
         data={mentorData}
         renderItem={renderMentorItem}
         keyExtractor={(item) => item.id.toString()}
       />
       </Animated.ScrollView>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate("AddMentor")}
+      >
+        <Edit color={colors.white()} variant="Linear" size={20} />
+      </TouchableOpacity>
     </Animated.View>
-    
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -112,5 +115,22 @@ const styles = StyleSheet.create({
     fontFamily: fontType['Pjs-Medium'],
     color: colors.grey(0.5),
     lineHeight: 18,
+  },
+  floatingButton: {
+    backgroundColor: colors.blue(),
+    padding: 15,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    borderRadius: 10,
+    shadowColor: colors.blue(),
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+
+    elevation: 8,
   },
 });
