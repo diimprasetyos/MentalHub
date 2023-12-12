@@ -5,7 +5,7 @@ import Home from '../screens/Home';
 import Konsultasi from '../screens/Konsultasi';
 import MentorDetails from '../screens/MentorDetails';
 import Profile from '../screens/Profile';
-import { Home2 } from 'iconsax-react-native';
+import { Home2, ProfileCircle,Health } from 'iconsax-react-native';
 import { fontType, colors } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -50,6 +50,13 @@ function MainApp() {
         options={{
           tabBarLabel: 'Konsultasi',
           headerShown: false,
+          tabBarIcon: ({ focused, color }) => (
+            <Health
+              color={color}
+              variant={focused ? 'Bold' : 'Linear'}
+              size={24}
+            />
+          ),
         }}
       />
       <Tab.Screen
@@ -58,6 +65,13 @@ function MainApp() {
         options={{
           tabBarLabel: 'Profile',
           headerShown: false,
+          tabBarIcon: ({ focused, color }) => (
+            <ProfileCircle
+              color={color}
+              variant={focused ? 'Bold' : 'Linear'}
+              size={24}
+            />
+          ),
         }}
       />
     </Tab.Navigator>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import React,{useRef} from 'react';
+import { View, StyleSheet, Text, Image, TouchableOpacity,Animated } from 'react-native';
 import { colors, fontType } from '../../theme';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
 import mentorData from '../../data/mentor-data';
@@ -9,11 +9,22 @@ export default function MentorDetails({ route, navigation }) {
     const { mentorId } = route.params;
     const mentor = mentorData.find((item) => item.id === mentorId);
 
+    const scrollY = useRef(new Animated.Value(0)).current;
+    const diffClampY = Animated.diffClamp(scrollY, 0, 100);
+    const recentY = diffClampY.interpolate({
+        inputRange: [0, 100],
+        outputRange: [0, -80],
+        extrapolate: 'clamp',
+      });
   const handleConsultation = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, {transform:[{translateY:recentY}]}]}>
+      <Animated.ScrollView 
+      showsVerticalScrollIndicator={false}
+      onScroll={Animated.event([{nativeEvent:{contentOffset:{y:scrollY}}}],
+        {useNativeDriver:true},)}>
       <View style={styles.category}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft color={colors.black(0.8)} size={24} />
@@ -35,7 +46,8 @@ export default function MentorDetails({ route, navigation }) {
           </View>
         </ScrollView>
       )}
-    </View>
+      </Animated.ScrollView>
+    </Animated.View>
   );
 }
 
