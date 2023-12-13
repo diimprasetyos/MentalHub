@@ -1,77 +1,81 @@
-import React from 'react';
-import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity } from 'react-native';
-import { colors, fontType } from '../../theme';
+// MentorDetails.js
+import React, { useRef, useState, useEffect } from 'react';
+import { View, StyleSheet, Text, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
-import mentorData from '../../data/mentor-data';
+import { colors, fontType } from '../../theme';
+import axios from 'axios';
 
-export default function MentorDetails( {route, navigation}) {
+export default function MentorDetails({ route, navigation }) {
+  const [mentor, setMentor] = useState(null);
+  const { mentorId } = route.params;
 
-  const renderMentorItem = ({ item }) => (
-    <View style={styles.mentorContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={styles.textContainer}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.category}>{item.category}</Text>
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const diffClampY = Animated.diffClamp(scrollY, 0, 100);
+  const recentY = diffClampY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, -80],
+    extrapolate: 'clamp',
+  });
+
+  useEffect(() => {
+    async function fetchMentorData() {
+      try {
+        const response = await axios.get('https://65789d84f08799dc8045c00a.mockapi.io/mentors');
+        const mentorsData = response.data;
+        const selectedMentor = mentorsData.find((item) => item.id === mentorId);
+        setMentor(selectedMentor);
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      }
+    }
+
+    fetchMentorData();
+  }, [mentorId]);
+
+  if (!mentor) {
+    return (
+      <View>
+        <Text>Loading...</Text>
       </View>
-    </View>
-  );
+    );
+  }
+
+  const handleConsultation = () => {
+    // Implement your consultation logic here
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.category}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft color={colors.black(0.8)} size={24} />
-        </TouchableOpacity>
-        <Text style={styles.heading}>Mentor</Text>
-        <InfoCircle color={colors.black(0.8)} size={24} />
-      </View>
-      <FlatList
-        data={mentorData}
-        renderItem={renderMentorItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    </View>
+    <Animated.View style={[styles.container, { transform: [{ translateY: recentY }] }]}>
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+      >
+        <View style={styles.category}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ArrowLeft color={colors.black(0.8)} size={24} />
+          </TouchableOpacity>
+          <Text style={styles.heading}>Konsultasi</Text>
+          <InfoCircle color={colors.black(0.8)} size={24} />
+        </View>
+        {mentor && (
+          <ScrollView style={styles.mentorContainer}>
+            <Image source={{ uri: mentor.image }} style={styles.image} />
+            <View style={styles.textContainer}>
+              <Text style={styles.title}>{mentor.title}</Text>
+              <Text style={styles.category}>{mentor.detail}</Text>
+              <Text style={styles.title}>Rp.{mentor.price}</Text>
+              <Text style={styles.text}>{mentor.description}</Text>
+              <TouchableOpacity style={styles.consultationButton} onPress={handleConsultation}>
+                <Text style={styles.buttonText}>Konsultasi Sekarang</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        )}
+      </Animated.ScrollView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 25,
-  },
-  category: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  heading: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: fontType['Itr-Medium'],
-    color: colors.black(0.8),
-  },
-  text: {
-    fontSize: 16,
-    fontWeight: 'regular',
-    fontFamily: fontType['Itr-Regular'],
-    color: colors.black(0.8),
-  },
-  mentorContainer: {  
-    flexDirection: 'row',
-    marginTop: 20,
-    
-    gap: 20,
-    alignItems: 'left',
-  },
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: fontType['Itr-Medium'],
-    color: colors.black(0.8),
-  },
+  // ... your styles
 });

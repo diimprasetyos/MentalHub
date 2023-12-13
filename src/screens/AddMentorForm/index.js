@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,31 +6,45 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator
 } from "react-native";
 import { ArrowLeft } from "iconsax-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { fontType, colors } from "../../theme";
-import mentorData from "../../data/mentor-data";
+import {categories} from "../../data";
+import axios from 'axios';
 
 const AddMentorForm = () => {
-  const dataCategory = [
-    { id: 1, name: "Kesehatan Mental" },
-    { id: 2, name: "Pengobatan Tradisional" },
-    { id: 3, name: "Instruktur Yoga" }
-  ];
-  const [mentorData, SetMentorData] = useState({
-    title: "",
-    category: {},
-    price: 0,
+  const navigation = useNavigation();
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [mentorData, setMentorData] = useState({
+    title: '',
+    price: '',
+    description: '',
   });
   const handleChange = (key, value) => {
-    SetMentorData({
+    setMentorData({
       ...mentorData,
       [key]: value,
     });
   };
+  const handleUpload = async () => {
+    try {
+      const response = await axios.post(
+        'https://65789d84f08799dc8045c00a.mockapi.io/mentors',
+        {
+          title: mentorData.title,
+          image,
+          price: mentorData.price,
+          description: mentorData.description,
+        }
+      );
+      navigation.navigate('MainApp');
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const [image, setImage] = useState(null);
-  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -68,45 +82,28 @@ const AddMentorForm = () => {
           />
         </View>
         <View style={[textInput.border]}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: fontType["Itr-Regular"],
-              color: colors.grey(0.6),
-            }}
-          >
-            Category
-          </Text>
-          <View style={category.container}>
-            {dataCategory.map((item, index) => {
-              const bgColor =
-                item.id === mentorData.category.id
-                  ? colors.black()
-                  : colors.grey(0.08);
-              const color =
-                item.id === mentorData.category.id
-                  ? colors.white()
-                  : colors.grey();
-              return (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() =>
-                    handleChange("category", { id: item.id, name: item.name })
-                  }
-                  style={[category.item, { backgroundColor: bgColor }]}
-                >
-                  <Text style={[category.name, { color: color }]}>
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <TextInput
+            placeholder="Price"
+            value={mentorData.price}
+            onChangeText={(text) => handleChange("price", text)}
+            placeholderTextColor={colors.grey(0.6)}
+            style={textInput.content}
+            keyboardType="numeric"
+          />
+        </View>
+        <View style={[textInput.border]}>
+          <TextInput
+            placeholder="Description"
+            value={mentorData.description}
+            onChangeText={(text) => handleChange("description", text)}
+            placeholderTextColor={colors.grey(0.6)}
+            style={textInput.content}
+          />
         </View>
       </ScrollView>
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.button} onPress={() => {}}>
-          <Text style={styles.buttonLabel}>Upload</Text>
+        <TouchableOpacity style={styles.button} onPress={handleUpload}>
+          <Text style={styles.buttonLabel}>Add</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -116,6 +113,7 @@ const AddMentorForm = () => {
 export default AddMentorForm;
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     backgroundColor: colors.white(),

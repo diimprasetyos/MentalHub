@@ -1,45 +1,85 @@
-import React from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
+import React,{useRef, useEffect, useState} from 'react';
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity,Animated,TouchableWithoutFeedback } from 'react-native';
 import { colors, fontType } from '../../theme';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
 import mentorData from '../../data/mentor-data';
+import { Edit } from 'iconsax-react-native';
+import axios from 'axios';
 
-export default function MentorDetails({ route, navigation }) {
-  const { id } = route.params; // Ambil ID mentor dari params
-  const selectedMentor = mentorData.find(item => item.id === id); // Cari mentor berdasarkan ID
+export default function MentorDetails( {route, navigation}) {
+  const [mentorData, setMentorData] = useState([]);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const diffClampY = Animated.diffClamp(scrollY, 0, 100);
+  const recentY = diffClampY.interpolate({
+      inputRange: [0, 100],
+      outputRange: [0, -80],
+      extrapolate: 'clamp',
+    });
 
-  const handleConsultation = () => {
-    navigation.navigate('Konsultasi', { mentor: selectedMentor });
-  };
+    useEffect(() => {
+      async function fetchMentorData() {
+        try {
+          const response = await axios.get('https://65789d84f08799dc8045c00a.mockapi.io/mentors');
+          setMentorData(response.data);
+        } catch (error) {
+          console.error('Error fetching mentor data:', error);
+        }
+      }
+  
+      fetchMentorData();
+    }, []);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.category}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft color={colors.black(0.8)} size={24} />
-        </TouchableOpacity>
-        <Text style={styles.heading}>Konsultasi</Text>
-        <InfoCircle color={colors.black(0.8)} size={24} />
-      </View>
-      <View style={styles.mentorContainer}>
-        <Image source={{ uri: selectedMentor.image }} style={styles.image} />
+    const renderMentorItem = ({ item }) => (
+      <TouchableOpacity
+        style={styles.mentorContainer}
+        onPress={() => navigation.navigate('MentorDetails', { MentorData: item.id })}
+      >
+        <Image source={{ uri: item.image }} style={styles.image} />
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{selectedMentor.title}</Text>
-          <Text style={styles.category}>{selectedMentor.detail}</Text>
-          <Text style={styles.title}>Rp.{selectedMentor.price}</Text>
-          <Text style={styles.text}>{selectedMentor.description}</Text>
-          <TouchableOpacity style={styles.consultationButton} onPress={handleConsultation}>
-            <Text style={styles.buttonText}>Konsultasi Sekarang</Text>
-          </TouchableOpacity>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.category}>{item.description}</Text>
+          <Text style={styles.category}>Price: {item.price}</Text>
         </View>
+      </TouchableOpacity>
+    );
+
+  
+  return (
+  <TouchableWithoutFeedback onPress={() => navigation.navigate('SearchPage')}>
+    <Animated.View style={[styles.container, { transform: [{ translateY: recentY }] }]}>
+      <View>
+        <View style={styles.category}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ArrowLeft color={colors.black(0.8)} size={24} />
+          </TouchableOpacity>
+          <Text style={styles.heading}>Mentor</Text>
+          <InfoCircle color={colors.black(0.8)} size={24} />
+        </View>
+        <FlatList
+          data={mentorData}
+          renderItem={renderMentorItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
       </View>
-    </View>
-  );
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('AddMentor')}
+      >
+        <Edit color={colors.white()} variant="Linear" size={20} />
+      </TouchableOpacity>
+    </Animated.View>
+  </TouchableWithoutFeedback>
+);
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 25,
+  },
+  searchBar: {
+    marginTop:20,
+    flexDirection: 'row',
+    height: 52,
   },
   category: {
     flexDirection: 'row',
@@ -76,5 +116,37 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: fontType['Itr-Medium'],
     color: colors.black(0.8),
+  },
+  bar: {
+    flexDirection: 'row',
+    padding: 10,
+    gap: 10,
+    alignItems: 'center',
+    backgroundColor: colors.grey(0.05),
+    borderRadius: 10,
+    flex: 1,
+  },
+  placeholder: {
+    fontSize: 14,
+    fontFamily: fontType['Pjs-Medium'],
+    color: colors.grey(0.5),
+    lineHeight: 18,
+  },
+  floatingButton: {
+    backgroundColor: colors.blue(),
+    padding: 15,
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    borderRadius: 10,
+    shadowColor: colors.blue(),
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+
+    elevation: 8,
   },
 });

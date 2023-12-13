@@ -1,3 +1,26 @@
+export const categories = [
+  {
+    id: 1,
+    categoryName: 'Mental Health',
+  },
+  {
+    id: 2,
+    categoryName: 'Productivity',
+  },
+  {
+    id: 3,
+    categoryName: 'Excercise',
+  },
+  {
+    id: 4,
+    categoryName: 'Favorite',
+  },
+  {
+    id: 5,
+    categoryName: 'Most Searched',
+  },
+];
+
   export default [
     {
       id: 1,

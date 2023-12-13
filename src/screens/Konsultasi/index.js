@@ -1,57 +1,71 @@
-import React,{useRef} from 'react';
-import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity,Animated,TouchableWithoutFeedback } from 'react-native';
-import { colors, fontType } from '../../theme';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity, Animated, TouchableWithoutFeedback } from 'react-native';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
-import mentorData from '../../data/mentor-data';
-import { Edit } from 'iconsax-react-native';
+import { colors, fontType } from '../../theme';
+import {Edit} from 'iconsax-react-native';
+import axios from 'axios';
 
-export default function MentorDetails( {route, navigation}) {
+export default function Konsultasi({ route, navigation }) {
+  const [mentorData, setMentorData] = useState([]);
   const scrollY = useRef(new Animated.Value(0)).current;
   const diffClampY = Animated.diffClamp(scrollY, 0, 100);
   const recentY = diffClampY.interpolate({
-      inputRange: [0, 100],
-      outputRange: [0, -80],
-      extrapolate: 'clamp',
-    });
+    inputRange: [0, 100],
+    outputRange: [0, -80],
+    extrapolate: 'clamp',
+  });
+
+  useEffect(() => {
+    async function fetchMentorData() {
+      try {
+        const response = await axios.get('https://65789d84f08799dc8045c00a.mockapi.io/mentors');
+        setMentorData(response.data);
+      } catch (error) {
+        console.error('Error fetching mentor data:', error);
+      }
+    }
+
+    fetchMentorData();
+  }, []);
+
   const renderMentorItem = ({ item }) => (
-    <TouchableOpacity  style={styles.mentorContainer} onPress={() =>  navigation.navigate('MentorDetails', { mentorId: item.id }) }>
+    <TouchableOpacity
+      style={styles.mentorContainer}
+      onPress={() => navigation.navigate('MentorDetails', { mentorId: item.id })}
+    >
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.textContainer}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.category}>{item.category}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.category}>{item.description}</Text>
+        <Text style={styles.category}>Price: {item.price}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <TouchableWithoutFeedback onPress={() => navigation.navigate("SearchPage")}>
-    <Animated.View style={[styles.container, {transform:[{translateY:recentY}]}]}>
-      <Animated.ScrollView 
-      showsVerticalScrollIndicator={false}
-      onScroll={Animated.event([{nativeEvent:{contentOffset:{y:scrollY}}}],
-        {useNativeDriver:true},)}>
-      <View style={styles.category}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft color={colors.black(0.8)} size={24} />
-        </TouchableOpacity>
-        <Text style={styles.heading}>Mentor</Text>
-        <InfoCircle color={colors.black(0.8)} size={24} />
-      </View>
-      <View>
-      </View>
-            <FlatList
-        data={mentorData}
-        renderItem={renderMentorItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
-      </Animated.ScrollView>
-      <TouchableOpacity
+    <TouchableWithoutFeedback onPress={() => navigation.navigate('SearchPage')}>
+      <Animated.View style={[styles.container, { transform: [{ translateY: recentY }] }]}>
+        <View>
+          <View style={styles.category}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <ArrowLeft color={colors.black(0.8)} size={24} />
+            </TouchableOpacity>
+            <Text style={styles.heading}>Mentor</Text>
+            <InfoCircle color={colors.black(0.8)} size={24} />
+          </View>
+          <FlatList
+            data={mentorData}
+            renderItem={renderMentorItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        </View>
+        <TouchableOpacity
         style={styles.floatingButton}
-        onPress={() => navigation.navigate("AddMentor")}
+        onPress={() => navigation.navigate('AddMentor')}
       >
         <Edit color={colors.white()} variant="Linear" size={20} />
       </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
     </TouchableWithoutFeedback>
   );
 }
@@ -120,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue(),
     padding: 15,
     position: 'absolute',
-    bottom: 24,
+    bottom: 40,
     right: 24,
     borderRadius: 10,
     shadowColor: colors.blue(),
