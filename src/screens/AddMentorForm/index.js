@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator
-} from "react-native";
-import { ArrowLeft } from "iconsax-react-native";
-import { useNavigation } from "@react-navigation/native";
-import { fontType, colors } from "../../theme";
-import {categories} from "../../data";
-import axios from 'axios';
+import React, {useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
+import FastImage from 'react-native-fast-image';
+import {ArrowLeft, AddSquare, Add} from 'iconsax-react-native';
+import {useNavigation} from '@react-navigation/native';
+import {fontType, colors} from '../../theme';
+import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
+import firestore from '@react-native-firebase/firestore';
 
 const AddMentorForm = () => {
   const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState([]);
   const [mentorData, setMentorData] = useState({
     title: '',
     price: '',
@@ -28,22 +21,52 @@ const AddMentorForm = () => {
       [key]: value,
     });
   };
+  const [loading, setLoading] = useState(false);
+  
+
+
   const handleUpload = async () => {
+    let filename = image.substring(image.lastIndexOf('/') + 1);
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+    const reference = storage().ref(`mentorimages/${filename}`);
+
+    setLoading(true);
+
     try {
-      const response = await axios.post(
-        'https://65789d84f08799dc8045c00a.mockapi.io/mentors',
-        {
-          title: mentorData.title,
-          image,
-          price: mentorData.price,
-          description: mentorData.description,
-        }
-      );
-      navigation.navigate('MainApp');
+      await reference.putFile(image);
+      const url = await reference.getDownloadURL();
+      await firestore().collection('mentor').add({
+        title: mentorData.title,
+        image: url,
+        price: mentorData.price,
+        description: mentorData.description,
+        createdAt: new Date(),
+      });
+      setLoading(false);
+      console.log('Mentor added!');
+      navigation.navigate('Konsultasi');
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
+  
+  const handleImagePick = async () => {
+    ImagePicker.openPicker({
+      width: 1920,
+      height: 1920,
+      cropping: true,
+    })
+      .then(image => {
+        console.log(image);
+        setImage(image.path);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   const [image, setImage] = useState(null);
   return (
     <View style={styles.container}>
@@ -72,15 +95,58 @@ const AddMentorForm = () => {
             style={textInput.title}
           />
         </View>
-        <View style={[textInput.border]}>
-          <TextInput
-            placeholder="Image"
-            value={image}
-            onChangeText={(text) => setImage(text)}
-            placeholderTextColor={colors.grey(0.6)}
-            style={textInput.content}
-          />
-        </View>
+        {image ? (
+          <View style={{position: 'relative'}}>
+            <FastImage
+              style={{width: '100%', height: 300, borderRadius: 5}}
+              source={{
+                uri: image,
+                headers: {Authorization: 'someAuthToken'},
+                priority: FastImage.priority.high,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
+            />
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                top: -5,
+                right: -5,
+                backgroundColor: colors.blue,
+                borderRadius: 25,
+              }}
+              onPress={() => setImage(null)}>
+              <Add
+                size={20}
+                variant="Linear"
+                color={colors.white}
+                style={{transform: [{rotate: '45deg'}]}}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity onPress={handleImagePick}>
+            <View
+              style={[
+                textInput.border,
+                {
+                  gap: 10,
+                  paddingVertical: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                },
+              ]}>
+              <AddSquare color={colors.grey} variant="Linear" size={32} />
+              <Text
+                style={{
+                  fontFamily: 'Itr-Regular',
+                  fontSize: 12,
+                  color: colors.grey,
+                }}>
+                Upload Image
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
         <View style={[textInput.border]}>
           <TextInput
             placeholder="Price"

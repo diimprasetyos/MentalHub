@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "554747131332",
+    "project_id": "mentalhub-31412",
+    "storage_bucket": "mentalhub-31412.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554747131332:android:409983b37529b9dc0da091",
+        "android_client_info": {
+          "package_name": "com.appsconsult"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlsdut8G_61ewcHyflyYKukCFdzNqozVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

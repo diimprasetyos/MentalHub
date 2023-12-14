@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
 import { ArrowLeft, InfoCircle } from 'iconsax-react-native';
 import { colors, fontType } from '../../theme';
-import axios from 'axios';
+import firestore from '@react-native-firebase/firestore';
 
 export default function MentorDetails({ route, navigation }) {
   const [mentor, setMentor] = useState(null);
@@ -17,18 +17,23 @@ export default function MentorDetails({ route, navigation }) {
   });
 
   useEffect(() => {
-    async function fetchMentorData() {
-      try {
-        const response = await axios.get('https://65789d84f08799dc8045c00a.mockapi.io/mentors');
-        const mentorsData = response.data;
-        const selectedMentor = mentorsData.find((item) => item.id === mentorId);
-        setMentor(selectedMentor);
-      } catch (error) {
-        console.error('Error fetching mentor data:', error);
-      }
-    }
+    const subscriber = firestore()
+      .collection('mentor')
+      .doc(mentorId)
+      .get()
+      .then(documentSnapshot => {
+        if (documentSnapshot.exists) {
+          const mentorData = documentSnapshot.data();
+          setMentor(mentorData);
+        } else {
+          console.log('Mentor does not exist');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching mentor:', error);
+      });
 
-    fetchMentorData();
+    return () => subscriber();
   }, [mentorId]);
 
   if (!mentor) {
