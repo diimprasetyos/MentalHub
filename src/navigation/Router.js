@@ -9,6 +9,9 @@ import Search from '../screens/Search';
 import { Home2, ProfileCircle,Health } from 'iconsax-react-native';
 import { fontType, colors } from '../theme';
 import AddMentorForm from '../screens/AddMentorForm';
+import SplashScreen from '../screens/SplashScreen';
+import Register from '../screens/Register';
+import Login from '../screens/Login';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -82,7 +85,7 @@ function MainApp() {
 
 const Router = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="SplashScreen">
       <Stack.Screen
         name="MainApp"
         component={MainApp}
@@ -131,6 +134,21 @@ const Router = () => {
           gestureDirection : 'horizontal',
           ...TransitionPresets.SlideFromRightIOS,
         }}
+      />
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{headerShown: false}}
+      />
+<Stack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
       />
     </Stack.Navigator>
   );
